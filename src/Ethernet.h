@@ -47,6 +47,7 @@
 // does not always seem to work in practice (maybe Wiznet bugs?)
 //#define ETHERNET_LARGE_BUFFERS
 
+#define SPI_HAS_TRANSFER_BUF
 
 #include <Arduino.h>
 #include "Client.h"
@@ -257,7 +258,7 @@ public:
 	EthernetServer(uint16_t port) : _port(port) { }
 	EthernetClient available();
 	EthernetClient accept();
-	virtual void begin();
+	void begin();
 	virtual size_t write(uint8_t);
 	virtual size_t write(const uint8_t *buf, size_t size);
 	virtual operator bool();

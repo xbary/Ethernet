@@ -17,8 +17,10 @@
 #include <Arduino.h>
 #include <SPI.h>
 
+
+
 // Safe for all chips
-#define SPI_ETHERNET_SETTINGS SPISettings(14000000, MSBFIRST, SPI_MODE0)
+#define SPI_ETHERNET_SETTINGS SPISettings(8000000, MSBFIRST, SPI_MODE0)
 
 // Safe for W5200 and W5500, but too fast for W5100
 // Uncomment this if you know you'll never need W5100 support.
@@ -403,7 +405,7 @@ private:
 		*(ss_pin_reg+8+2) = ss_pin_mask;
 	}
 
-#elif defined(ARDUINO_ARCH_ESP8266)
+#elif defined(ARDUINO_ARCH_ESP8266) 
 	static volatile uint32_t *ss_pin_reg;
 	static uint32_t ss_pin_mask;
 	inline static void initSS() {

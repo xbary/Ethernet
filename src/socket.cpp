@@ -431,21 +431,23 @@ uint16_t EthernetClass::socketSend(uint8_t s, const uint8_t * buf, uint16_t len)
 		ret = len;
 	}
 
+	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+	delay(1);
 	// if freebuf is available, start.
 	do {
-		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+//		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 		freesize = getSnTX_FSR(s);
 		status = W5100.readSnSR(s);
-		SPI.endTransaction();
+//		SPI.endTransaction();
 		if ((status != SnSR::ESTABLISHED) && (status != SnSR::CLOSE_WAIT)) {
 			ret = 0;
 			break;
 		}
-		yield();
+		delay(1);// yield();
 	} while (freesize < ret);
 
 	// copy data
-	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+//	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	write_data(s, 0, (uint8_t *)buf, ret);
 	W5100.execCmdSn(s, Sock_SEND);
 
@@ -456,13 +458,14 @@ uint16_t EthernetClass::socketSend(uint8_t s, const uint8_t * buf, uint16_t len)
 			SPI.endTransaction();
 			return 0;
 		}
-		SPI.endTransaction();
+//		SPI.endTransaction();
 		yield();
-		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+//		SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	}
 	/* +2008.01 bj */
 	W5100.writeSnIR(s, SnIR::SEND_OK);
 	SPI.endTransaction();
+	delay(1);
 	return ret;
 }
 

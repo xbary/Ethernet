@@ -22,6 +22,7 @@
 #include "Ethernet.h"
 #include "utility/w5100.h"
 #include "Dhcp.h"
+#include <xb_board_def.h>
 
 IPAddress EthernetClass::_dnsServerAddress;
 DhcpClass* EthernetClass::_dhcp = NULL;
@@ -83,7 +84,7 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
 	if (W5100.init() == 0) return;
 	SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
 	W5100.setMACAddress(mac);
-#ifdef ESP8266
+#if defined(ESP8266) || defined(ESP32)
 	W5100.setIPAddress(&ip[0]);
 	W5100.setGatewayIp(&gateway[0]);
 	W5100.setSubnetMask(&subnet[0]);
@@ -103,6 +104,7 @@ void EthernetClass::begin(uint8_t *mac, IPAddress ip, IPAddress dns, IPAddress g
 void EthernetClass::init(uint8_t sspin)
 {
 	W5100.setSS(sspin);
+	//SPI.begin(ETH_PIN_SCK, ETH_PIN_MISO, ETH_PIN_MOSI);
 }
 
 EthernetLinkStatus EthernetClass::linkStatus()

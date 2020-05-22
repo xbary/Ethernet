@@ -22,6 +22,7 @@
 #include "Ethernet.h"
 #include "Dns.h"
 #include "utility/w5100.h"
+#include <xb_board.h>
 
 int EthernetClient::connect(const char * host, uint16_t port)
 {
@@ -35,7 +36,8 @@ int EthernetClient::connect(const char * host, uint16_t port)
 		sockindex = MAX_SOCK_NUM;
 	}
 	dns.begin(Ethernet.dnsServerIP());
-	if (!dns.getHostByName(host, remote_addr)) return 0; // TODO: use _timeout
+	int result = dns.getHostByName(host, remote_addr);
+	if (!result) return 0; // TODO: use _timeout
 	return connect(remote_addr, port);
 }
 
@@ -55,6 +57,7 @@ int EthernetClient::connect(IPAddress ip, uint16_t port)
 	sockindex = Ethernet.socketBegin(SnMR::TCP, 0);
 	if (sockindex >= MAX_SOCK_NUM) return 0;
 	Ethernet.socketConnect(sockindex, rawIPAddress(ip), port);
+
 	uint32_t start = millis();
 	while (1) {
 		uint8_t stat = Ethernet.socketStatus(sockindex);
@@ -122,10 +125,12 @@ int EthernetClient::read()
 
 void EthernetClient::flush()
 {
+	unsigned long start = millis();
 	while (sockindex < MAX_SOCK_NUM) {
 		uint8_t stat = Ethernet.socketStatus(sockindex);
 		if (stat != SnSR::ESTABLISHED && stat != SnSR::CLOSE_WAIT) return;
 		if (Ethernet.socketSendAvailable(sockindex) >= W5100.SSIZE) return;
+		if (millis() - start > _timeout) return;
 	}
 }
 

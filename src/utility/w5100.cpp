@@ -11,6 +11,7 @@
 #include <Arduino.h>
 #include "Ethernet.h"
 #include "w5100.h"
+#include <xb_board_def.h>
 
 
 /***************************************************/
@@ -43,7 +44,7 @@
 
 // As a final fallback, use pin 10
 #else
-#define SS_PIN_DEFAULT  10
+#define SS_PIN_DEFAULT  ETH_PIN_CS
 #endif
 
 
@@ -74,8 +75,8 @@ W5100Class W5100;
 #elif defined(__PIC32MX__)
   volatile uint32_t * W5100Class::ss_pin_reg;
   uint32_t W5100Class::ss_pin_mask;
-#elif defined(ARDUINO_ARCH_ESP8266)
-  volatile uint32_t * W5100Class::ss_pin_reg;
+#elif defined(ARDUINO_ARCH_ESP8266) 
+  volatile uint32_t *W5100Class::ss_pin_reg;
   uint32_t W5100Class::ss_pin_mask;
 #elif defined(__SAMD21G18A__)
   volatile uint32_t * W5100Class::ss_pin_reg;
@@ -314,7 +315,8 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 		cmd[3] = len & 0xFF;
 		SPI.transfer(cmd, 4);
 #ifdef SPI_HAS_TRANSFER_BUF
-		SPI.transfer(buf, NULL, len);
+		SPI.writeBytes((uint8_t*)buf, len);
+		//SPI.transfer(buf, NULL, len);
 #else
 		// TODO: copy 8 bytes at a time to cmd[] and block transfer
 		for (uint16_t i=0; i < len; i++) {
@@ -370,7 +372,8 @@ uint16_t W5100Class::write(uint16_t addr, const uint8_t *buf, uint16_t len)
 		} else {
 			SPI.transfer(cmd, 3);
 #ifdef SPI_HAS_TRANSFER_BUF
-			SPI.transfer(buf, NULL, len);
+			//SPI.transfer(buf, NULL, len);
+			SPI.writeBytes((uint8_t *)buf, len);
 #else
 			// TODO: copy 8 bytes at a time to cmd[] and block transfer
 			for (uint16_t i=0; i < len; i++) {
